@@ -1,0 +1,24 @@
+{
+  "name": "node-package-zip",
+  "version": "1.0.0",
+  "description": "extract node proyect to zip",
+  "main": "index.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Softman65/node-package-zip.git"
+  },
+  "keywords": [
+    "package",
+    "node",
+    "zip"
+  ],
+  "author": "Ricardo Benitez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Softman65/node-package-zip/issues"
+  },
+  "homepage": "https://github.com/Softman65/node-package-zip#readme"
+}
