@@ -1,46 +1,50 @@
 const { readdirSync, lstatSync } = require('fs')
 const path = require('path');
 const AdmZip = require("adm-zip");
-
+//debugger
 class zipack{
     
-    constructor (mainPath){
+    constructor (options){
+
         this.zip = new AdmZip();
         this.start = async(directory ,filesArray, proc, onlyFolders)=>{
-            return await readFolderRecursive( directory ,filesArray, (v)=>{ 
-                proc(v) } , onlyFolders )  
+            return await this.readFolderRecursive( directory ,filesArray, (v)=>{ 
+               return proc(v) } , onlyFolders )  
         }
         this.readFolderRecursive = async( _dir , filesArray, callback, onlyFolders )=>{    
             var files = readdirSync( _dir )
-            await processFiles( _dir, files ,0 , filesArray, callback, onlyFolders )
+            await this.processFiles( _dir, files ,0 , filesArray, callback, onlyFolders )
         }
         this.processFiles = async(_dir, array, n ,filesArray, callback, onlyFolders )=>{
+            
             const file = array[n]
+            const msglog =`Directory:${_dir}/${file}`
+
             if(n<array.length){
                 let fileDetails = lstatSync(path.resolve(_dir, file));
                 if (fileDetails.isDirectory()) {
                     if( onlyFolders ? !onlyFolders(file) : (file.indexOf('.')==0 || file.indexOf('node_modules')==0) ){
-                        console.error('EXCLUDE Directory: ' + file)
-                        await processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
+                        console.error(`${msglog} EXCLUDE`)
+                        await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                     }else{
                         //directory = directory + '\\' + file                
-                        console.log('Directory: ' + _dir + '/' + file)
+                       // console.log(`${msglog} OK`) //'Directory: ' + _dir + '/' + file)
                         if(!onlyFolders){
-                            await readFolderRecursive( _dir + '/' + file  , filesArray,async()=>{
-                                    await processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
+                            await this.readFolderRecursive( _dir + '/' + file  , filesArray,async()=>{
+                                    await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                             })
                         }else{
                             filesArray.push( [`${file}`] )
-                            await processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
+                            await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                         }
                     }
                     
                 } else {
                     //let dir = _dir //.split(_Path)[1] + '\\'  //.length>1 ? directory.split(_Path)[1] :'\\'
                     if(file.indexOf('.zip')==-1 && !onlyFolders)
-                        filesArray.push( [`${_dir}`,`${file}`] )
+                        filesArray.push( [`${path.normalize(_dir)}`,`${file}`] )
                     //console.log('File: ' + file, _dir);
-                    await processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
+                    await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                 }
             }else{
                 callback(filesArray)
@@ -52,25 +56,38 @@ class zipack{
     
             if(e<array.length){
         
-                let file = array[e]
-                localPath = `${file[0]}/${file[1]}`
-                zipPath = `${file[0].replace(directory,'')}`
+                const file = array[e]
+                let dirfs = directory.replace(/\//g,'\\')
+                const localPath = path.normalize(`${file[0]}/${file[1]}`)
+                // path.normalize(`${file[0]}/${file[1]}`)
+
                 
-                console.log(localPath, zipPath)
+                let ofileOf = file[0].indexOf( dirfs )
+                const localRest = file[0].substr(ofileOf + dirfs.length).replace( /\\/g,"/" ) 
+
+                //let subofile = file[0].substr( ofileOf  )
+                //let subfsile = subofile.replace( /\\/g,"/" ) 
+
+                //let zipPath = directory.replace( subfsile ,"" ) + '/'
+                //zipPath = zipPath.length>1 ? zipPath : ''
+                const zipFile = `${localRest}${localRest.length>0?'/':''}` //.replace(/\//g,"\\" )//${file[1]}`
+
+                console.log( localPath, zipFile)
         
-                zip.addLocalFile(localPath, zipPath) //(`.${file[0]}/${file[1]}`, file[1])
+                this.zip.addLocalFile(localPath, zipFile) //(`.${file[0]}/${file[1]}`, file[1])
                        
-                $fzip(array,++e,callback)
+                this.$fzip(directory,array,++e,callback)
             }else{
                 callback()
             }
         } 
-        start( mainPath , [] , async(filesArray)=>{
+        //debugger
+        this.start( options.mainPath , [] , async(filesArray)=>{
  
             const fileZip =filesArray.pop()
             var directory = path.normalize(`${process.cwd()}/../${fileZip}`.split(':')[1]).replace(/\\/g,'/')
 
-            await readFolderRecursive( `${process.cwd()}/../${fileZip}` , [], ()=>{
+            await this.readFolderRecursive( `${process.cwd()}/../${fileZip}` , [], (filesArray)=>{
         
                 filesArray.sort((a,b)=>{ 
                     if (a[0].length > b[0].length) {
@@ -82,16 +99,37 @@ class zipack{
                       return 0;
                 })
         
-                $fzip(directory,[],0,()=>{
-                    zip.writeZip(`../${fileZip}.zip`);
+                this.$fzip(directory,filesArray ,0,()=>{
+                    this.zip.writeZip( path.normalize(`${directory}/../${fileZip}.zip`) );
                 })
             })
 
-        },(_f)=>{ return _f.indexOf('v')==0 } )        
-    }
+        },(_f)=>{ 
+            let r = true
+            let so = []
+            console.log(_f)
+            options.regVer.forEach((regex,n)=>{
+                so[n] = _f.match(regex)?true:false //regex.test(_f)
+                console.log(so[n])
+            })
+            
+            so.forEach((e)=>{
+                if(!e)
+                    r = false //regex.test(_f)//_f.match(regex)!=null //.length>0
+            })
+            return r 
+        }) // _f.match(/[a-z]\d\.\d\.\d/g ).length>0 } )        
+    } 
     
 }
 
-module.exports = (mainPath)=>{
-    return new zipack(mainPath)
+module.exports = (options )=>{
+    if(!options.regVer)
+        options.regVer = [
+            new RegExp(/[a-z]\d/g),
+            new RegExp(/[a-z]\d\.\d/g),
+            new RegExp(/[a-z]\d\.\d\.\d/g),
+        ]
+    options.mainPath = path.normalize(options.path)
+    return new zipack(options)
 }

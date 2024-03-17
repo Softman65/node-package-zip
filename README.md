@@ -2,4 +2,4 @@
 
 
 
-adminPack = require('./node.zip.package.class.js')(`${process.cwd()}/..`)
+require('./node.zip.package.class.js')(`${process.cwd()}/..`)
