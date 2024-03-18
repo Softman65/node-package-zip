@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/Softman65/node-package-zip/issues"
   },
-  "homepage": "https://github.com/Softman65/node-package-zip#readme"
+  "homepage": "https://github.com/Softman65/node-package-zip#readme",
+  "dependencies": {
+    "adm-zip": "^0.5.12"
+  }
 }
