@@ -23,16 +23,18 @@ class zipack{
             if(n<array.length){
                 let fileDetails = lstatSync(path.resolve(_dir, file));
                 if (fileDetails.isDirectory()) {
-                    if( onlyFolders ? !onlyFolders(file) : (file.indexOf('.')==0 || file.indexOf('node_modules')==0) ){
+                    if(!onlyFolders)
+                        debugger
+                    if( !onlyFolders.test(file) ) {// onlyFolders ? !onlyFolders(file) : (file.indexOf('.')==0 || file.indexOf('node_modules')==0) ){
                         console.error(`${msglog} EXCLUDE`)
                         await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                     }else{
                         //directory = directory + '\\' + file                
                        // console.log(`${msglog} OK`) //'Directory: ' + _dir + '/' + file)
-                        if(!onlyFolders){
+                        if(!onlyFolders._t){
                             await this.readFolderRecursive( _dir + '/' + file  , filesArray,async()=>{
                                     await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
-                            })
+                            }, onlyFolders)
                         }else{
                             filesArray.push( [`${file}`] )
                             await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
@@ -41,7 +43,7 @@ class zipack{
                     
                 } else {
                     //let dir = _dir //.split(_Path)[1] + '\\'  //.length>1 ? directory.split(_Path)[1] :'\\'
-                    if(file.indexOf('.zip')==-1 && !onlyFolders)
+                    if(file.indexOf('.zip')==-1 && !onlyFolders._t)
                         filesArray.push( [`${path.normalize(_dir)}`,`${file}`] )
                     //console.log('File: ' + file, _dir);
                     await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
@@ -58,7 +60,7 @@ class zipack{
         
                 const file = array[e]
                 let dirfs = directory.replace(/\//g,'\\')
-                const localPath = path.normalize(`${file[0]}/${file[1]}`)
+                const localPath = path.normalize(file.length==1  ? `${file[0]}`:`${file[0]}/${file[1]}`)
                 // path.normalize(`${file[0]}/${file[1]}`)
 
                 
@@ -81,7 +83,23 @@ class zipack{
                 callback()
             }
         } 
-        //debugger
+        
+        this.test=(reg,_string)=>{
+            let r = false
+            let so = []
+
+            reg.forEach((regex,n)=>{
+                so[n] = _string.match(regex)?true:false //regex.test(_f)
+                //console.log(so[n])
+            })
+            
+            so.forEach((e)=>{
+                if(e)
+                    r = true //regex.test(_f)//_f.match(regex)!=null //.length>0
+            })
+            return r 
+        }
+
         this.start( options.mainPath , [] , async(filesArray)=>{
  
             const fileZip =filesArray.pop()
@@ -102,23 +120,11 @@ class zipack{
                 this.$fzip(directory,filesArray ,0,()=>{
                     this.zip.writeZip( path.normalize(`${directory}/../${fileZip}.zip`) );
                 })
-            })
 
-        },(_f)=>{ 
-            let r = true
-            let so = []
-            console.log(_f)
-            options.regVer.forEach((regex,n)=>{
-                so[n] = _f.match(regex)?true:false //regex.test(_f)
-                console.log(so[n])
-            })
-            
-            so.forEach((e)=>{
-                if(!e)
-                    r = false //regex.test(_f)//_f.match(regex)!=null //.length>0
-            })
-            return r 
-        }) // _f.match(/[a-z]\d\.\d\.\d/g ).length>0 } )        
+            }, options.fn_validate(this, options.regExc, false))
+
+        }, options.fn_validate(this,options.regVer, true) )
+             
     } 
     
 }
@@ -130,6 +136,21 @@ module.exports = (options )=>{
             new RegExp(/[a-z]\d\.\d/g),
             new RegExp(/[a-z]\d\.\d\.\d/g),
         ]
+    if(!options.regExc)
+        options.regExc =[
+            new RegExp(/^\./g),
+            new RegExp(/^node_modules/g),
+        ] 
+    options.fn_validate = (_this, _regexp, _x)=>{
+        
+        return  { test : (_f)=>{
+                            let exp = _x ? _this.test(_regexp ,_f):!_this.test(_regexp ,_f)
+                            return exp
+                        },
+                  _t : _x
+                }  
+        
+    }
     options.mainPath = path.normalize(options.path)
     return new zipack(options)
 }

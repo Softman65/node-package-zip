@@ -1,5 +1,6 @@
 # node-package-zip
 
+utils para copiar proyectos node completos excluyendo las carpetas node_modules 
 
-
-require('./node.zip.package.class.js')(`${process.cwd()}/..`)
+let options = { path: `${process.cwd()}/..`}
+require('./node.zip.package.class.js')(options)
