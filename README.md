@@ -33,3 +33,5 @@ require('node-zip-package')(options)
                         })
 
 ```
+
+creará un fichero ***.zip*** en la carpeta ***options.path*** 
