@@ -13,7 +13,7 @@ require('node-zip-package')(options)
 ```    
 ### options
 
-    path: carpeta con las diferentes versiones
+    path: carpeta con las diferentes versiones, escojera la última carpeta modificada
     regVer: matriz con regexp de las carpetas de versiones válidas
     regExc: matriz con regexp con las carpetas a excluir del fichero Zip
 

@@ -1,6 +1,6 @@
 {
   "name": "node-package-zip",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "extract node proyect to zip",
   "main": "index.js",
   "scripts": {
