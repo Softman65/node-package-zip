@@ -19,7 +19,7 @@ require('node-zip-package')(options)
 
 ### ejemplo
 ```
-        require('./node.zip.package.class.js')({
+        require('node-zip-package')({
                             path: `${process.cwd()}/..` ,
                             regVer : [
                                 new RegExp(/[a-z]\d/g),
