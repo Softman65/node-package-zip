@@ -8,7 +8,7 @@ el objetivo de este util es la compresión de los ficheros de un proyecto NODE
 
 ```
 let options = { path: `${process.cwd()}/..`}
-require('./node.zip.package.class.js')(options)
+require('node-zip-package')(options)
 
 ```    
 ### options
