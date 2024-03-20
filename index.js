@@ -100,7 +100,7 @@ class zipack{
             return r 
         }
 
-        this.start( options.mainPath , [] , async(filesArray)=>{
+        this.start( options.path , [] , async(filesArray)=>{
  
             const fileZip =filesArray.pop()
             var directory = path.normalize(`${process.cwd()}/../${fileZip}`.split(':')[1]).replace(/\\/g,'/')
@@ -141,6 +141,9 @@ module.exports = (options )=>{
             new RegExp(/^\./g),
             new RegExp(/^node_modules/g),
         ] 
+    if(!options.path)
+        options.path = path.normalize( options.path ? options.path: `${process.cwd()}/..` )
+    
     options.fn_validate = (_this, _regexp, _x)=>{
         
         return  { test : (_f)=>{
@@ -148,9 +151,8 @@ module.exports = (options )=>{
                             return exp
                         },
                   _t : _x
-                }  
-        
+                }          
     }
-    options.mainPath = path.normalize(options.path)
+
     return new zipack(options)
 }
