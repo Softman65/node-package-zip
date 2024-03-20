@@ -8,7 +8,7 @@ el objetivo de este util es la compresión de los ficheros de un proyecto NODE
 
 ```
 let options = { path: `${process.cwd()}/..`}
-require('node-zip-package')(options)
+require('node-package-zip')(options)
 
 ```    
 ### options
@@ -19,7 +19,7 @@ require('node-zip-package')(options)
 
 ### ejemplo
 ```
-        require('node-zip-package')({
+        require('node-package-zip')({
                             path: `${process.cwd()}/..` ,
                             regVer : [
                                 new RegExp(/[a-z]\d/g),
