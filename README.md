@@ -4,16 +4,33 @@
 
 el objetivo de este util es la compresión de los ficheros de un proyecto NODE
 
+### instalación
+```
+npm install -D node-package-zip
+```
 
-
+crea en tu proyecto un fichero pack.js
 ```
 let options = { path: `${process.cwd()}/..`}
 require('node-package-zip')(options)
 
-```    
+```
+modifica package.json
+```
+    "scripts": {
+        "package": "node ./pack.js"
+    }
+```
+
+para realizar una copia 
+```
+    npm run package
+```
+
 ### options
 
-    path: carpeta con las diferentes versiones, escojera la última carpeta modificada
+    path  : carpeta con las diferentes versiones, 
+            escojera la última carpeta modificada
     regVer: matriz con regexp de las carpetas de versiones válidas
     regExc: matriz con regexp con las carpetas a excluir del fichero Zip
 
