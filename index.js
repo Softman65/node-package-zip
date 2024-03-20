@@ -1,7 +1,7 @@
 const { readdirSync, lstatSync } = require('fs')
 const path = require('path');
 const AdmZip = require("adm-zip");
-//debugger
+
 class zipack{
     
     constructor (options){
@@ -25,12 +25,10 @@ class zipack{
                 if (fileDetails.isDirectory()) {
                     if(!onlyFolders)
                         debugger
-                    if( !onlyFolders.test(file) ) {// onlyFolders ? !onlyFolders(file) : (file.indexOf('.')==0 || file.indexOf('node_modules')==0) ){
+                    if( !onlyFolders.test(file) ) {
                         console.error(`${msglog} EXCLUDE`)
                         await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                     }else{
-                        //directory = directory + '\\' + file                
-                       // console.log(`${msglog} OK`) //'Directory: ' + _dir + '/' + file)
                         if(!onlyFolders._t){
                             await this.readFolderRecursive( _dir + '/' + file  , filesArray,async()=>{
                                     await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
@@ -42,10 +40,8 @@ class zipack{
                     }
                     
                 } else {
-                    //let dir = _dir //.split(_Path)[1] + '\\'  //.length>1 ? directory.split(_Path)[1] :'\\'
                     if(file.indexOf('.zip')==-1 && !onlyFolders._t)
                         filesArray.push( [`${path.normalize(_dir)}`,`${file}`] )
-                    //console.log('File: ' + file, _dir);
                     await this.processFiles( _dir, array, n+1 ,filesArray, callback, onlyFolders)
                 }
             }else{
@@ -61,22 +57,14 @@ class zipack{
                 const file = array[e]
                 let dirfs = directory.replace(/\//g,'\\')
                 const localPath = path.normalize(file.length==1  ? `${file[0]}`:`${file[0]}/${file[1]}`)
-                // path.normalize(`${file[0]}/${file[1]}`)
 
-                
                 let ofileOf = file[0].indexOf( dirfs )
                 const localRest = file[0].substr(ofileOf + dirfs.length).replace( /\\/g,"/" ) 
-
-                //let subofile = file[0].substr( ofileOf  )
-                //let subfsile = subofile.replace( /\\/g,"/" ) 
-
-                //let zipPath = directory.replace( subfsile ,"" ) + '/'
-                //zipPath = zipPath.length>1 ? zipPath : ''
-                const zipFile = `${localRest}${localRest.length>0?'/':''}` //.replace(/\//g,"\\" )//${file[1]}`
+                const zipFile = `${localRest}${localRest.length>0?'/':''}`
 
                 console.log( localPath, zipFile)
         
-                this.zip.addLocalFile(localPath, zipFile) //(`.${file[0]}/${file[1]}`, file[1])
+                this.zip.addLocalFile(localPath, zipFile) 
                        
                 this.$fzip(directory,array,++e,callback)
             }else{
@@ -89,13 +77,12 @@ class zipack{
             let so = []
 
             reg.forEach((regex,n)=>{
-                so[n] = _string.match(regex)?true:false //regex.test(_f)
-                //console.log(so[n])
+                so[n] = _string.match(regex)?true:false 
             })
             
             so.forEach((e)=>{
                 if(e)
-                    r = true //regex.test(_f)//_f.match(regex)!=null //.length>0
+                    r = true 
             })
             return r 
         }
